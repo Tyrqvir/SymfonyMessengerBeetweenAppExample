@@ -1,0 +1,40 @@
+framework:
+    messenger:
+
+        # The bus that is going to be injected when injecting MessageBusInterface
+        default_bus: command.bus
+
+        # Create buses
+        buses:
+            command.bus:
+                default_middleware: allow_no_handlers
+                middleware:
+                    - App\Messenger\AuditMiddleware
+
+            query.bus:
+                middleware:
+                    - App\Messenger\AuditMiddleware
+
+            event.bus:
+                default_middleware: allow_no_handlers
+                middleware:
+                    - App\Messenger\AuditMiddleware
+
+        transports:
+            # https://symfony.com/doc/current/messenger.html#transport-configuration
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                retry_strategy:
+                    max_retries: 3
+                    delay: 1000
+                    multiplier: 2
+
+            to_external_application:
+                dsn: '%env(EXTERNAL_MESSENGER_TRANSPORT_DSN)%'
+                serializer: 'Happyr\MessageSerializer\Serializer'
+
+            sync: 'sync://'
+
+        routing:
+            # Route your messages to the transports
+            'App\Message\ToExternalMessageInterface': to_external_application

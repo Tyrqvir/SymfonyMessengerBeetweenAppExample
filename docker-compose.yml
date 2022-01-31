@@ -1,0 +1,69 @@
+version: '3.9'
+
+services:
+    first-app:
+        restart: always
+        container_name: first-app
+        build:
+            context: ./docker/php
+        working_dir: /var/www/html
+        ports:
+            - '8881:8000'
+        volumes:
+            - ./shared/app/first-app:/var/www/html/app
+        networks:
+            - event
+
+    second-app:
+        restart: always
+        container_name: second-app
+        build:
+            context: ./docker/php
+        working_dir: /var/www/html
+        ports:
+            - '8882:8000'
+        volumes:
+            - ./shared/app/second-app:/var/www/html/app
+        networks:
+            - event
+
+    redis:
+        container_name: redis
+        restart: always
+        image: redis
+        ports:
+            - '6379:6379'
+        networks:
+            - event
+
+    first-app-worker:
+        container_name: first-app-worker
+        restart: always
+        depends_on:
+            - first-app
+            - redis
+        build:
+            context: ./docker/php-cli
+        entrypoint: [ "php", "bin/console", "messenger:consume", "to_external_application", "--limit=100", "--time-limit=3600", "-vv" ]
+        working_dir: /var/www
+        volumes:
+            - ./shared/app/first-app:/var/www:z
+        networks:
+            - event
+            
+    second-app-worker:
+        container_name: second-app-worker
+        restart: always
+        depends_on:
+            - second-app
+            - redis
+        build:
+            context: ./docker/php-cli
+        entrypoint: [ "php", "bin/console", "messenger:consume", "from_external_application", "--limit=100", "--time-limit=3600", "-vv" ]
+        working_dir: /var/www
+        volumes:
+            - ./shared/app/second-app:/var/www:z
+        networks:
+            - event
+networks:
+    event:

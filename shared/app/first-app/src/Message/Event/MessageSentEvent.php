@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 namespace App\Message\Event;
 
-use App\Message\Contracts\EventMessageInterface;
-use App\Message\ToExternalMessageInterface;
+use App\Message\Contracts\ToExternalMessageInterface;
 use Happyr\MessageSerializer\Hydrator\HydratorInterface;
 use Happyr\MessageSerializer\Transformer\TransformerInterface;
 use Symfony\Component\Messenger\Envelope;
 
-class MessageSentEvent implements EventMessageInterface, ToExternalMessageInterface, HydratorInterface, TransformerInterface
+class MessageSentEvent implements ToExternalMessageInterface, HydratorInterface, TransformerInterface
 {
-    private int $id;
+    protected int $id;
 
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     public static function create(int $id): self
     {
@@ -63,4 +64,5 @@ class MessageSentEvent implements EventMessageInterface, ToExternalMessageInterf
     {
         return $identifier === self::class && $version === 1;
     }
+
 }

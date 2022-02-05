@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace App\Message\Event;
 
 use App\Message\Contracts\EventMessageInterface;
-use App\Message\ToExternalMessageInterface;
 use Happyr\MessageSerializer\Hydrator\HydratorInterface;
-use Happyr\MessageSerializer\Transformer\TransformerInterface;
-use Symfony\Component\Messenger\Envelope;
 
-class MessageSentEvent implements EventMessageInterface, ToExternalMessageInterface, HydratorInterface, TransformerInterface
+class MessageSentEvent implements EventMessageInterface, HydratorInterface
 {
     private int $id;
 
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     public static function create(int $id): self
     {
@@ -22,36 +21,6 @@ class MessageSentEvent implements EventMessageInterface, ToExternalMessageInterf
         $message->id = $id;
 
         return $message;
-    }
-
-    public function getVersion(): int
-    {
-        return 1;
-    }
-
-    public function getIdentifier(): string
-    {
-        return self::class;
-    }
-
-    public function getPayload($message): array
-    {
-        if ($message instanceof Envelope) {
-            $message = $message->getMessage();
-        }
-
-        return [
-            'id' => $message->id,
-        ];
-    }
-
-    public function supportsTransform($message): bool
-    {
-        if ($message instanceof Envelope) {
-            $message = $message->getMessage();
-        }
-
-        return $message instanceof self;
     }
 
     public function toMessage(array $payload, int $version): self
@@ -62,5 +31,10 @@ class MessageSentEvent implements EventMessageInterface, ToExternalMessageInterf
     public function supportsHydrate(string $identifier, int $version): bool
     {
         return $identifier === self::class && $version === 1;
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
     }
 }

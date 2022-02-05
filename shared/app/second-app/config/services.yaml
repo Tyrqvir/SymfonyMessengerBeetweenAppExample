@@ -31,3 +31,15 @@ services:
         Happyr\MessageSerializer\Hydrator\HydratorInterface:
             tags:
                 - 'happyr.message_serializer.hydrator'
+
+        App\MessageHandler\Contracts\CommandHandlerInterface:
+            tags:
+                - { name: messenger.message_handler, bus: command.bus }
+
+        App\MessageHandler\Contracts\EventHandlerInterface:
+            tags:
+                - { name: messenger.message_handler, bus: event.bus }
+
+        App\MessageHandler\Contracts\QueryHandlerInterface:
+            tags:
+                - { name: messenger.message_handler, bus: query.bus }

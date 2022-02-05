@@ -7,7 +7,6 @@ framework:
         # Create buses
         buses:
             command.bus:
-                default_middleware: allow_no_handlers
                 middleware:
                     - App\Messenger\AuditMiddleware
 
@@ -37,4 +36,7 @@ framework:
 
         routing:
             # Route your messages to the transports
-            'App\Message\ToExternalMessageInterface': to_external_application
+            'App\Message\Contracts\ToExternalMessageInterface': to_external_application
+            'App\Message\Contracts\CommandMessageInterface': async
+            'App\Message\Contracts\QueryMessageInterface': sync
+            'App\Message\Contracts\EventMessageInterface': async
